@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>朗区房査定 · Sushiro Proximity Index</title>
+<meta name="description" content="Find your nearest Sushiro (スシロー) and get an official proximity tier rating. Self-contained, no backend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reggae+One&family=Yuji+Syuku&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Serif+JP:wght@400;600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C8102E;
+    --red-deep: #8B0D1F;
+    --gold: #E8B04B;
+    --cream: #FAF2DE;
+    --cream-warm: #F4E4BC;
+    --ink: #1A1410;
+    --ink-soft: #3A2F26;
+    --line: #2B1F16;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Noto Serif SC", "Noto Serif JP", Georgia, serif;
+    min-height: 100vh;
+  }
+  html[lang="ja"] body { font-family: "Noto Serif JP", "Noto Serif SC", Georgia, serif; }
+  html[lang="en"] body { font-family: "Noto Serif SC", Georgia, serif; }
+
+  body {
+    background-image: radial-gradient(circle at 1px 1px, rgba(26, 20, 16, 0.08) 1px, transparent 0);
+    background-size: 24px 24px;
+    padding: 24px 16px 80px;
+  }
+
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  .lang-toggle {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0;
+    margin-bottom: 14px;
+  }
+
+  .lang-toggle button {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 7px 14px;
+    background: var(--cream);
+    color: var(--ink-soft);
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+    border-right-width: 0;
+  }
+  .lang-toggle button:last-child { border-right-width: 2px; }
+  .lang-toggle button:hover { background: var(--cream-warm); }
+  .lang-toggle button.active {
+    background: var(--line);
+    color: var(--cream);
+  }
+
+  header {
+    position: relative;
+    background: var(--red);
+    color: var(--cream);
+    padding: 36px 32px 40px;
+    border: 3px solid var(--line);
+    border-radius: 2px;
+    box-shadow: 8px 8px 0 var(--line);
+    overflow: hidden;
+  }
+
+  header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(45deg, transparent 0 40px, rgba(255, 255, 255, 0.03) 40px 41px);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    background: var(--gold);
+    color: var(--line);
+    border: 2px solid var(--line);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: "Reggae One", "Noto Serif SC", serif;
+    font-size: clamp(38px, 7vw, 64px);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  html[lang="en"] h1 { font-size: clamp(32px, 5.5vw, 52px); }
+
+  .h1-sub {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    opacity: 0.85;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+
+  .tagline {
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.7;
+    opacity: 0.95;
+    max-width: 560px;
+  }
+
+  .tagline em {
+    font-style: normal;
+    background: var(--gold);
+    color: var(--line);
+    padding: 1px 6px;
+    font-weight: 600;
+  }
+
+  .jpn {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    font-family: "Yuji Syuku", "Noto Serif JP", serif;
+    font-size: 44px;
+    color: var(--cream);
+    opacity: 0.25;
+    line-height: 1;
+    writing-mode: vertical-rl;
+    letter-spacing: 0.2em;
+  }
+
+  .input-section {
+    background: #fff;
+    margin-top: 24px;
+    padding: 28px 28px 24px;
+    border: 3px solid var(--line);
+    border-radius: 2px;
+    box-shadow: 6px 6px 0 var(--line);
+  }
+
+  .input-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    margin-bottom: 10px;
+    display: block;
+    text-transform: uppercase;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #address-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 16px;
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: 0;
+    color: var(--ink);
+    outline: none;
+    transition: background 0.15s;
+  }
+  #address-input:focus {
+    background: #fff;
+    box-shadow: inset 0 0 0 2px var(--gold);
+  }
+  #address-input::placeholder {
+    color: rgba(26, 20, 16, 0.4);
+    font-style: italic;
+  }
+
+  button.action {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 20px;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+    white-space: nowrap;
+  }
+  button.action:active { transform: translate(2px, 2px); }
+
+  .btn-primary {
+    background: var(--red);
+    color: var(--cream);
+    box-shadow: 4px 4px 0 var(--line);
+  }
+  .btn-primary:hover { background: var(--red-deep); }
+  .btn-primary:active { box-shadow: 2px 2px 0 var(--line); }
+
+  .btn-secondary {
+    background: var(--gold);
+    color: var(--line);
+    box-shadow: 4px 4px 0 var(--line);
+  }
+  .btn-secondary:active { box-shadow: 2px 2px 0 var(--line); }
+
+  button.action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .hint {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  #status {
+    margin-top: 24px;
+    padding: 18px 22px;
+    background: var(--cream-warm);
+    border: 2px dashed var(--line);
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+  }
+  #status.visible { display: block; }
+  #status.error { background: #F5D4D4; border-color: var(--red); color: var(--red-deep); }
+  #status small { display: block; margin-top: 6px; opacity: 0.85; font-size: 12px; line-height: 1.5; }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--line);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #result { margin-top: 28px; display: none; }
+  #result.visible { display: block; animation: reveal 0.5s ease-out; }
+
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .certificate {
+    position: relative;
+    background: #fff;
+    border: 3px solid var(--line);
+    padding: 0;
+    box-shadow: 8px 8px 0 var(--line);
+    overflow: hidden;
+  }
+
+  .cert-header {
+    background: var(--line);
+    color: var(--cream);
+    padding: 10px 22px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+  }
+
+  .cert-body { padding: 32px 32px 28px; position: relative; }
+
+  .cert-body::before {
+    content: "";
+    position: absolute;
+    top: 20px; left: 20px; right: 20px; bottom: 20px;
+    border: 1px solid rgba(26, 20, 16, 0.15);
+    pointer-events: none;
+  }
+
+  .verdict-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .verdict-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .verdict-name {
+    font-family: "Reggae One", "Noto Serif SC", serif;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.05;
+    color: var(--red);
+    letter-spacing: 0.01em;
+  }
+  html[lang="ja"] .verdict-name { font-family: "Reggae One", "Noto Serif JP", serif; }
+
+  .verdict-desc {
+    margin-top: 12px;
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  .divider {
+    margin: 26px 0 22px;
+    border: none;
+    border-top: 1px dashed rgba(26, 20, 16, 0.3);
+    position: relative;
+    z-index: 1;
+  }
+
+  .nearest {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: start;
+    position: relative;
+    z-index: 1;
+  }
+
+  .distance-big {
+    font-family: "Reggae One", serif;
+    font-size: clamp(42px, 7vw, 64px);
+    line-height: 1;
+    color: var(--red);
+    letter-spacing: -0.02em;
+  }
+
+  .distance-unit { font-size: 0.5em; color: var(--ink-soft); margin-left: 4px; }
+
+  .nearest-name {
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .nearest-addr {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .map-link {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    color: var(--line);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .map-link:hover { color: var(--red); }
+
+  .seal {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    width: 86px;
+    height: 86px;
+    border: 2px solid var(--red);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--red);
+    font-family: "Yuji Syuku", serif;
+    font-size: 11px;
+    line-height: 1.1;
+    text-align: center;
+    padding: 4px;
+    transform: rotate(-8deg);
+    background: rgba(255, 244, 224, 0.5);
+    opacity: 0.9;
+  }
+  .seal::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--red);
+    border-radius: 50%;
+  }
+  .seal-big {
+    font-size: 16px;
+    font-family: "Reggae One", serif;
+    line-height: 1;
+    margin: 2px 0;
+  }
+
+  .nearby {
+    margin-top: 24px;
+    background: #fff;
+    border: 3px solid var(--line);
+    padding: 24px 26px;
+    box-shadow: 6px 6px 0 var(--line);
+  }
+
+  .nearby h2 {
+    font-family: "Reggae One", serif;
+    font-size: 22px;
+    color: var(--line);
+    margin-bottom: 18px;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  html[lang="ja"] .nearby h2 { font-family: "Reggae One", "Noto Serif JP", serif; }
+
+  .nearby h2 span {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.2em;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+
+  .nearby ol { list-style: none; counter-reset: rank; }
+
+  .nearby li {
+    counter-increment: rank;
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px dotted rgba(26, 20, 16, 0.2);
+    align-items: center;
+  }
+  .nearby li:last-child { border-bottom: none; }
+
+  .nearby li::before {
+    content: counter(rank);
+    font-family: "Reggae One", serif;
+    font-size: 20px;
+    color: var(--red);
+    text-align: center;
+  }
+
+  .store-info { min-width: 0; }
+
+  .store-name {
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-addr {
+    font-size: 12px;
+    color: var(--ink-soft);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .store-dist {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--line);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+  footer code {
+    font-family: "JetBrains Mono", monospace;
+    background: var(--cream-warm);
+    padding: 1px 6px;
+    border: 1px solid rgba(26, 20, 16, 0.15);
+  }
+
+  @media (max-width: 540px) {
+    .verdict-row { grid-template-columns: 1fr; }
+    .seal { width: 64px; height: 64px; top: 14px; right: 14px; }
+    .seal-big { font-size: 12px; }
+    .seal { font-size: 9px; }
+    .nearest { grid-template-columns: 1fr; }
+    .jpn { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="lang-toggle" role="tablist">
+    <button data-lang="zh" class="active" title="中文">中</button>
+    <button data-lang="en" title="English">EN</button>
+    <button data-lang="ja" title="日本語">日</button>
+  </div>
+
+  <header>
+    <div class="jpn">朗区房査定</div>
+    <span class="badge" id="badge"></span>
+    <h1 id="h1"></h1>
+    <div class="h1-sub">朗区房査定</div>
+    <p class="tagline" id="tagline"></p>
+  </header>
+
+  <section class="input-section">
+    <label class="input-label" for="address-input" id="input-label"></label>
+    <div class="input-row">
+      <input type="text" id="address-input" autocomplete="street-address">
+      <button class="action btn-primary" id="query-btn" onclick="onQuery()"></button>
+      <button class="action btn-secondary" id="geo-btn" onclick="onGeolocate()"></button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </section>
+
+  <div id="status"></div>
+
+  <div id="result">
+    <div class="certificate">
+      <div class="cert-header">
+        <span id="cert-title"></span>
+        <span id="cert-id">No. 000000</span>
+      </div>
+      <div class="cert-body">
+        <div class="seal" id="seal">
+          <span id="seal-emoji">🏅</span>
+          <span class="seal-big" id="seal-name"></span>
+          <span>OFFICIAL</span>
+        </div>
+
+        <div class="verdict-row">
+          <div>
+            <div class="verdict-label" id="tier-label"></div>
+            <div class="verdict-name" id="verdict-name">—</div>
+            <div class="verdict-desc" id="verdict-desc">—</div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="nearest">
+          <div class="distance-big">
+            <span id="distance-num">—</span><span class="distance-unit" id="distance-unit"></span>
+          </div>
+          <div>
+            <div class="verdict-label" id="nearest-label"></div>
+            <div class="nearest-name" id="nearest-name">—</div>
+            <div class="nearest-addr" id="nearest-addr">—</div>
+            <a class="map-link" id="map-link" href="#" target="_blank" rel="noopener"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nearby">
+      <h2 id="top5-title"></h2>
+      <ol id="top5"></ol>
+    </div>
+  </div>
+
+  <footer>
+    <div id="footer-1"></div>
+    <div id="footer-2"></div>
+  </footer>
+
+</div>
+
+<script>
+  // ============ EMBEDDED DATA (generated by build.py) ============
+  // Format: [{n:name, a:address, y:lat, x:lng}, ...]
+  const SUSHIRO_DATA = /*__SUSHIRO_DATA__*/[];
+  const SUSHIRO_COUNT = __SUSHIRO_COUNT__;
+
+  // ============ I18N ============
+  const I18N = {
+    zh: {
+      htmlLang: "zh-CN",
+      badge: "朗区房鉴定 · 自建索引 · EST. 2026",
+      h1: "朗区房查询器",
+      tagline: `输入地址，自动测算到最近 <em>スシロー</em> 的距离，并给出「朗区房等级」评定。`,
+      inputLabel: "你的住址",
+      placeholder: "例：东京都新宿区 / 上海市徐汇区 / Cambridge, MA",
+      btnQuery: "查 询",
+      btnGeo: "📍 用我当前位置",
+      hint: `内置 ${SUSHIRO_COUNT} 家门店（数据来自 OpenStreetMap），覆盖日本、中国大陆、港台、韩新、东南亚`,
+      certTitle: "朗区房鉴定证书",
+      tierLabel: "评级",
+      nearestLabel: "最近门店",
+      mapLink: "查看地图 ↗",
+      top5Title: "附近 TOP 5",
+      top5Sub: "NEAREST STORES",
+      footer1: `${SUSHIRO_COUNT} 家门店数据来自 OpenStreetMap · 地理编码 <code>Nominatim / Photon</code> · 直线距离（Haversine）`,
+      footer2: "非官方 — 纯属朗粉自用工具，不构成购房建议",
+      stCalc: "计算中……",
+      stParsing: "解析地址中……",
+      stNeedAddr: "先输入一个地址，或者点「用我当前位置」。",
+      stGeocodeErr: "地址解析失败：",
+      stGeoNotSupport: "这个浏览器不支持定位 API。",
+      stGeoWait: "请求浏览器定位权限中……",
+      stGeoFail: "浏览器定位失败：",
+      stGeoFallback: "换用 IP 定位……（精度到城市级别）",
+      stGeoDenied: "定位权限被拒。",
+      stBothFailed: "定位和 IP 定位都没成功。手动输地址吧。"
+    },
+    en: {
+      htmlLang: "en",
+      badge: "SUSHIRO PROXIMITY INDEX · EST. 2026",
+      h1: "Sushiro Proximity Index",
+      tagline: `Enter your address. We'll find your nearest <em>Sushiro</em> and give you an official proximity tier.`,
+      inputLabel: "Your address",
+      placeholder: "e.g., Shibuya, Tokyo / SoHo, New York / Cambridge, MA",
+      btnQuery: "Search",
+      btnGeo: "📍 Use my location",
+      hint: `${SUSHIRO_COUNT} stores embedded (data from OpenStreetMap); covers JP, TW, HK, SG, KR, TH, CN, ID, MY.`,
+      certTitle: "Proximity Certificate",
+      tierLabel: "Tier",
+      nearestLabel: "Nearest store",
+      mapLink: "View on map ↗",
+      top5Title: "Top 5 nearest",
+      top5Sub: "NEAREST STORES",
+      footer1: `${SUSHIRO_COUNT} store locations from OpenStreetMap · geocoding via <code>Nominatim / Photon</code> · straight-line distance (Haversine).`,
+      footer2: "Unofficial — a fan tool, not real estate advice.",
+      stCalc: "Calculating…",
+      stParsing: "Looking up your address…",
+      stNeedAddr: "Enter an address, or click \"Use my location\".",
+      stGeocodeErr: "Couldn't resolve that address: ",
+      stGeoNotSupport: "This browser doesn't support the geolocation API.",
+      stGeoWait: "Requesting location permission…",
+      stGeoFail: "Browser geolocation failed: ",
+      stGeoFallback: "Falling back to IP geolocation… (city-level accuracy)",
+      stGeoDenied: "Location permission denied.",
+      stBothFailed: "Both precise and IP location failed. Try entering an address?"
+    },
+    ja: {
+      htmlLang: "ja",
+      badge: "スシロー近接指数 · EST. 2026",
+      h1: "スシロー近接指数",
+      tagline: `ご住所を入力。最寄りの <em>スシロー</em> までの距離を測り、「朗区房ランク」を判定します。`,
+      inputLabel: "ご住所",
+      placeholder: "例：東京都新宿区 / 中央区銀座 / Cambridge, MA",
+      btnQuery: "検 索",
+      btnGeo: "📍 現在地を使う",
+      hint: `${SUSHIRO_COUNT}店舗を内蔵（OpenStreetMap 由来）／日本・中国・台湾・香港・韓国・新加坡・タイ・インドネシア・マレーシア`,
+      certTitle: "朗区房認定証",
+      tierLabel: "ランク",
+      nearestLabel: "最寄り店舗",
+      mapLink: "地図で見る ↗",
+      top5Title: "近隣 TOP 5",
+      top5Sub: "NEAREST STORES",
+      footer1: `${SUSHIRO_COUNT}店舗データは OpenStreetMap から · ジオコーディング <code>Nominatim / Photon</code> · 直線距離（Haversine）`,
+      footer2: "非公式 — スシローファンの自作ツール、不動産アドバイスではありません。",
+      stCalc: "計算中……",
+      stParsing: "住所を解析中……",
+      stNeedAddr: "住所を入力するか、「現在地を使う」をクリック。",
+      stGeocodeErr: "住所解析に失敗：",
+      stGeoNotSupport: "このブラウザは位置情報APIに対応していません。",
+      stGeoWait: "位置情報権限を要求中……",
+      stGeoFail: "ブラウザ測位に失敗：",
+      stGeoFallback: "IP測位にフォールバック……（精度は都市レベル）",
+      stGeoDenied: "位置情報の利用が拒否されました。",
+      stBothFailed: "精密測位もIP測位も失敗しました。手動で住所を。"
+    }
+  };
+
+  // ============ TIERS ============
+  const TIERS = [
+    { max: 0.3,      emoji: "🏅", key: "prime"   },
+    { max: 1,        emoji: "🥇", key: "t1"      },
+    { max: 3,        emoji: "🥈", key: "t2"      },
+    { max: 10,       emoji: "🥉", key: "t3"      },
+    { max: 50,       emoji: "🚗", key: "quasi"   },
+    { max: 200,      emoji: "🏞",  key: "exurb"   },
+    { max: 1000,     emoji: "✈️", key: "exclave" },
+    { max: 5000,     emoji: "🥲", key: "refugee" },
+    { max: Infinity, emoji: "🗺",  key: "exile"   }
+  ];
+
+  const TIER_LOCALE = {
+    zh: {
+      prime:   { name: "顶级朗区房", desc: "推开窗就是寿司朗，资产直接挂牌溢价",                   seal: "顶级" },
+      t1:      { name: "一级朗区房", desc: "步行十分钟内，不穿外套都行",                            seal: "一级" },
+      t2:      { name: "二级朗区房", desc: "骑个车、走一会儿，属于日常生活半径",                    seal: "二级" },
+      t3:      { name: "三级朗区房", desc: "要计划一下，但「想去就能去」",                           seal: "三级" },
+      quasi:   { name: "准朗区",     desc: "开车一趟，属于周末行程",                                seal: "准朗" },
+      exurb:   { name: "朗区远郊",   desc: "一日游起步，得规划",                                    seal: "远郊" },
+      exclave: { name: "朗区飞地",   desc: "需要坐飞机，算一次小型探亲",                            seal: "飞地" },
+      refugee: { name: "朗区难民",   desc: "跨洲思乡型，朋友圈看别人吃是你的精神生活",              seal: "难民" },
+      exile:   { name: "朗区流放",   desc: "建议搬家。或者搬厨房——开始研究怎么自己捏",              seal: "流放" }
+    },
+    en: {
+      prime:   { name: "Prime Zone",      desc: "Open the window and there it is. Property value just jumped.", seal: "PRIME" },
+      t1:      { name: "Tier I",          desc: "Ten-minute walk. No jacket required.",                          seal: "T-I"   },
+      t2:      { name: "Tier II",         desc: "Quick bike ride. Inside your daily radius.",                    seal: "T-II"  },
+      t3:      { name: "Tier III",        desc: "Needs a little planning, but 'anytime' still holds.",           seal: "T-III" },
+      quasi:   { name: "Quasi-Zone",      desc: "One drive. Weekend trip territory.",                            seal: "Q"     },
+      exurb:   { name: "Sushiro Exurb",   desc: "Day trip. Plan ahead.",                                         seal: "EXURB" },
+      exclave: { name: "Sushiro Exclave", desc: "Requires a flight. Counts as a mini pilgrimage.",               seal: "EXCL"  },
+      refugee: { name: "Sushiro Refugee", desc: "Continental homesickness. Watching others eat it online is now your spiritual life.", seal: "REFUG" },
+      exile:   { name: "Sushiro Exile",   desc: "Consider relocating. Or relocate your kitchen — time to learn nigiri.", seal: "EXILE" }
+    },
+    ja: {
+      prime:   { name: "最上級スシロー圏", desc: "窓を開ければそこにスシロー。資産価値が即上昇。",            seal: "最上" },
+      t1:      { name: "第一級",           desc: "徒歩十分圏内。上着なしでもOK。",                             seal: "一級" },
+      t2:      { name: "第二級",           desc: "自転車ですぐ。日常生活圏内。",                               seal: "二級" },
+      t3:      { name: "第三級",           desc: "少し計画が要るが、「行こうと思えば行ける」範囲。",           seal: "三級" },
+      quasi:   { name: "準スシロー圏",     desc: "車で一回。週末コース。",                                     seal: "準"   },
+      exurb:   { name: "郊外",             desc: "日帰り旅行。要計画。",                                       seal: "郊外" },
+      exclave: { name: "飛び地",           desc: "飛行機必須。ミニ帰省扱い。",                                 seal: "飛地" },
+      refugee: { name: "難民",             desc: "大陸越しのホームシック。SNSで他人が食べてるのを見るのが精神生活。", seal: "難民" },
+      exile:   { name: "流刑",             desc: "引越しを推奨。あるいは台所を——自分で握る練習を始めよう。",   seal: "流刑" }
+    }
+  };
+
+  function getTier(km) { return TIERS.find(t => km < t.max); }
+
+  // ============ HAVERSINE ============
+  function haversine(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat/2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2) ** 2;
+    return R * 2 * Math.asin(Math.sqrt(a));
+  }
+
+  function formatDistance(km) {
+    if (km < 1) return { num: Math.round(km * 1000), unit: " m" };
+    if (km < 100) return { num: km.toFixed(1), unit: " km" };
+    if (km < 10000) return { num: Math.round(km).toLocaleString(), unit: " km" };
+    return { num: (km / 1000).toFixed(1), unit: " ×10³ km" };
+  }
+
+  // ============ GEOCODING (with fallback) ============
+  async function geocodeNominatim(address) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&addressdetails=1`;
+    const res = await fetch(url, { headers: { "Accept-Language": "zh-CN,zh,en,ja" } });
+    if (!res.ok) throw new Error(`Nominatim HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.length) throw new Error("no results");
+    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  }
+
+  async function geocodePhoton(address) {
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}&limit=1`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Photon HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.features?.length) throw new Error("no results");
+    const f = data.features[0];
+    const [lng, lat] = f.geometry.coordinates;
+    return { lat, lng };
+  }
+
+  async function geocode(address) {
+    const errors = [];
+    try { return await geocodeNominatim(address); }
+    catch (e) { errors.push("Nominatim: " + e.message); }
+    try { return await geocodePhoton(address); }
+    catch (e) { errors.push("Photon: " + e.message); }
+    throw new Error(errors.join(" / "));
+  }
+
+  // ============ IP GEOLOCATION (fallback) ============
+  async function ipGeolocate() {
+    const services = [
+      { url: "https://ipapi.co/json/",              parse: d => ({ lat: d.latitude, lng: d.longitude }) },
+      { url: "https://ipwho.is/",                   parse: d => ({ lat: d.latitude, lng: d.longitude }) },
+      { url: "https://get.geojs.io/v1/ip/geo.json", parse: d => ({ lat: parseFloat(d.latitude), lng: parseFloat(d.longitude) }) }
+    ];
+    const errors = [];
+    for (const svc of services) {
+      try {
+        const res = await fetch(svc.url);
+        if (!res.ok) { errors.push(`${svc.url}: HTTP ${res.status}`); continue; }
+        const data = await res.json();
+        const r = svc.parse(data);
+        if (r.lat && r.lng && !isNaN(r.lat) && !isNaN(r.lng)) return r;
+      } catch (e) { errors.push(`${svc.url}: ${e.message}`); }
+    }
+    throw new Error(errors.join(" / "));
+  }
+
+  // ============ STATE ============
+  let currentLang = "zh";
+  let lastResultData = null;
+
+  const $ = sel => document.querySelector(sel);
+  const statusEl = () => $("#status");
+  function t() { return I18N[currentLang]; }
+
+  function setStatus(html, isError = false) {
+    statusEl().className = isError ? "visible error" : "visible";
+    statusEl().innerHTML = html;
+  }
+  function hideStatus() { statusEl().className = ""; }
+  function setButtonsDisabled(d) {
+    $("#query-btn").disabled = d;
+    $("#geo-btn").disabled = d;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  // ============ LANGUAGE SWITCHING ============
+  function setLang(lang) {
+    currentLang = lang;
+    const L = I18N[lang];
+    document.documentElement.lang = L.htmlLang;
+
+    document.querySelectorAll(".lang-toggle button").forEach(b => {
+      b.classList.toggle("active", b.dataset.lang === lang);
+    });
+
+    $("#badge").textContent = L.badge;
+    $("#h1").textContent = L.h1;
+    $("#tagline").innerHTML = L.tagline;
+    $("#input-label").textContent = L.inputLabel;
+    $("#address-input").placeholder = L.placeholder;
+    $("#query-btn").textContent = L.btnQuery;
+    $("#geo-btn").textContent = L.btnGeo;
+    $("#hint").textContent = L.hint;
+    $("#cert-title").textContent = L.certTitle;
+    $("#tier-label").textContent = L.tierLabel;
+    $("#nearest-label").textContent = L.nearestLabel;
+    $("#map-link").textContent = L.mapLink;
+    $("#top5-title").innerHTML = `${escapeHtml(L.top5Title)} <span>${escapeHtml(L.top5Sub)}</span>`;
+    $("#footer-1").innerHTML = L.footer1;
+    $("#footer-2").textContent = L.footer2;
+    document.title = `${L.h1} · 朗区房査定`;
+
+    if (lastResultData) renderResult(lastResultData);
+  }
+
+  document.querySelectorAll(".lang-toggle button").forEach(btn => {
+    btn.addEventListener("click", () => setLang(btn.dataset.lang));
+  });
+
+  // ============ RENDER ============
+  function renderResult(rd) {
+    lastResultData = rd;
+    const { nearest, top5 } = rd;
+    const tier = getTier(nearest.distance);
+    const tierText = TIER_LOCALE[currentLang][tier.key];
+
+    const certId = "R-" + Math.abs(Math.round(nearest.distance * 1000) % 999999).toString().padStart(6, "0");
+    $("#cert-id").textContent = "No. " + certId;
+
+    $("#verdict-name").textContent = tierText.name;
+    $("#verdict-desc").textContent = tierText.desc;
+
+    $("#seal-emoji").textContent = tier.emoji;
+    $("#seal-name").textContent = tierText.seal;
+
+    const fd = formatDistance(nearest.distance);
+    $("#distance-num").textContent = fd.num;
+    $("#distance-unit").textContent = fd.unit;
+
+    $("#nearest-name").textContent = nearest.n;
+    $("#nearest-addr").textContent = nearest.a;
+    $("#map-link").href = `https://www.openstreetmap.org/?mlat=${nearest.y}&mlon=${nearest.x}#map=16/${nearest.y}/${nearest.x}`;
+
+    const top5El = $("#top5");
+    top5El.innerHTML = "";
+    top5.forEach(loc => {
+      const li = document.createElement("li");
+      const fd2 = formatDistance(loc.distance);
+      li.innerHTML = `
+        <div class="store-info">
+          <div class="store-name">${escapeHtml(loc.n)}</div>
+          <div class="store-addr">${escapeHtml(loc.a)}</div>
+        </div>
+        <div class="store-dist">${fd2.num}${fd2.unit}</div>
+      `;
+      top5El.appendChild(li);
+    });
+
+    $("#result").classList.add("visible");
+    hideStatus();
+  }
+
+  // ============ QUERY FLOW ============
+  function runQuery(userLat, userLng) {
+    $("#result").classList.remove("visible");
+
+    const withDist = SUSHIRO_DATA.map(loc => ({
+      ...loc,
+      distance: haversine(userLat, userLng, loc.y, loc.x)
+    })).sort((a, b) => a.distance - b.distance);
+
+    renderResult({ nearest: withDist[0], top5: withDist.slice(0, 5) });
+    setTimeout(() => $("#result").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  }
+
+  async function onQuery() {
+    const addr = $("#address-input").value.trim();
+    if (!addr) { setStatus(t().stNeedAddr, true); return; }
+    setButtonsDisabled(true);
+    setStatus(`<span class="spinner"></span> ${t().stParsing}`);
+    try {
+      const loc = await geocode(addr);
+      runQuery(loc.lat, loc.lng);
+    } catch (e) {
+      setStatus(t().stGeocodeErr + e.message, true);
+    } finally {
+      setButtonsDisabled(false);
+    }
+  }
+
+  function onGeolocate() {
+    setButtonsDisabled(true);
+
+    const tryIpFallback = async (reason) => {
+      setStatus(`<span class="spinner"></span> ${reason}<br>${t().stGeoFallback}`);
+      try {
+        const loc = await ipGeolocate();
+        runQuery(loc.lat, loc.lng);
+      } catch (e2) {
+        setStatus(t().stBothFailed, true);
+      } finally {
+        setButtonsDisabled(false);
+      }
+    };
+
+    if (!navigator.geolocation) {
+      tryIpFallback(t().stGeoNotSupport);
+      return;
+    }
+
+    setStatus(`<span class="spinner"></span> ${t().stGeoWait}`);
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        runQuery(pos.coords.latitude, pos.coords.longitude);
+        setButtonsDisabled(false);
+      },
+      err => {
+        const reason = err.code === 1 ? t().stGeoDenied : t().stGeoFail + err.message;
+        tryIpFallback(reason);
+      },
+      { enableHighAccuracy: false, timeout: 12000, maximumAge: 60000 }
+    );
+  }
+
+  $("#address-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") onQuery();
+  });
+
+  // Init
+  setLang("zh");
+</script>
+</body>
+</html>
