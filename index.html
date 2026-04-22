@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>朗区房査定 · Sushiro Proximity Index</title>
-<meta name="description" content="Find your nearest Sushiro (スシロー) and get an official proximity tier rating. Self-contained, no backend.">
+<title>朗区房测评器 · Sushiro Distance Index</title>
+<meta name="description" content="Measure how close you are to the nearest Sushiro. Self-contained, no backend.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Reggae+One&family=Yuji+Syuku&family=Noto+Serif+SC:wght@400;600;900&family=Noto+Serif+JP:wght@400;600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -417,13 +417,7 @@
     margin: 2px 0;
   }
 
-  .nearby {
-    margin-top: 24px;
-    background: #fff;
-    border: 3px solid var(--line);
-    padding: 24px 26px;
-    box-shadow: 6px 6px 0 var(--line);
-  }
+  .nearby { display: none; }
 
   .nearby h2 {
     font-family: "Reggae One", serif;
@@ -517,6 +511,23 @@
     .nearest { grid-template-columns: 1fr; }
     .jpn { display: none; }
   }
+
+
+  .seal { display: none; }
+  #cert-id { display: none; }
+  .cert-header { justify-content: flex-start; }
+  .verdict-row { grid-template-columns: 1fr; }
+  .verdict-name {
+    font-family: "JetBrains Mono", monospace;
+    font-size: clamp(34px, 7vw, 64px);
+    letter-spacing: -0.04em;
+  }
+  .verdict-desc {
+    font-style: normal;
+    max-width: 520px;
+  }
+  .nearby { display: none; }
+
 </style>
 </head>
 <body>
@@ -532,7 +543,7 @@
     <div class="jpn">朗区房査定</div>
     <span class="badge" id="badge"></span>
     <h1 id="h1"></h1>
-    <div class="h1-sub">朗区房査定</div>
+    <div class="h1-sub">SUSHIRO DISTANCE INDEX</div>
     <p class="tagline" id="tagline"></p>
   </header>
 
@@ -585,10 +596,6 @@
       </div>
     </div>
 
-    <div class="nearby">
-      <h2 id="top5-title"></h2>
-      <ol id="top5"></ol>
-    </div>
   </div>
 
   <footer>
@@ -607,23 +614,21 @@
   // ============ I18N ============
   const I18N = {
     zh: {
-      htmlLang: "zh-CN",
-      badge: "朗区房鉴定 · 自建索引 · EST. 2026",
-      h1: "朗区房查询器",
-      tagline: `输入地址，自动测算到最近 <em>スシロー</em> 的距离，并给出「朗区房等级」评定。`,
-      inputLabel: "你的住址",
-      placeholder: "例：东京都新宿区 / 上海市徐汇区 / Cambridge, MA",
-      btnQuery: "查 询",
-      btnGeo: "📍 用我当前位置",
-      hint: `内置 ${SUSHIRO_COUNT} 家门店（数据来自 OpenStreetMap），覆盖日本、中国大陆、港台、韩新、东南亚`,
-      certTitle: "朗区房鉴定证书",
-      tierLabel: "评级",
-      nearestLabel: "最近门店",
+      htmlLang: "zh",
+      badge: "朗区房査定 · EST. 2026",
+      h1: "朗区房测评器",
+      tagline: `输入地址，测算你与最近<em>寿司郎</em>的距离，并生成<em>朗区评级</em>。`,
+      inputLabel: "输入地址",
+      placeholder: "例如：上海徐汇 / 北京国贸 / 广州天河 / 东京涩谷",
+      btnQuery: "开始测评",
+      btnGeo: "📍 用我的位置",
+      hint: `${SUSHIRO_COUNT} 家门店已内置（来自 OpenStreetMap）；仅显示最近门店、距离、分数与朗区评级。`,
+      certTitle: "朗区房测定书",
+      tierLabel: "朗区评级",
+      nearestLabel: "最近一家寿司郎",
       mapLink: "查看地图 ↗",
-      top5Title: "附近 TOP 5",
-      top5Sub: "NEAREST STORES",
       footer1: `${SUSHIRO_COUNT} 家门店数据来自 OpenStreetMap · 地理编码 <code>Nominatim / Photon</code> · 直线距离（Haversine）`,
-      footer2: "非官方 — 纯属朗粉自用工具，不构成购房建议",
+      footer2: "非官方朗区评测工具，不构成任何购房建议。",
       stCalc: "计算中……",
       stParsing: "解析地址中……",
       stNeedAddr: "先输入一个地址，或者点「用我当前位置」。",
@@ -637,22 +642,20 @@
     },
     en: {
       htmlLang: "en",
-      badge: "SUSHIRO PROXIMITY INDEX · EST. 2026",
-      h1: "Sushiro Proximity Index",
-      tagline: `Enter your address. We'll find your nearest <em>Sushiro</em> and give you an official proximity tier.`,
+      badge: "SUSHIRO DISTANCE INDEX · EST. 2026",
+      h1: "Sushiro Distance Index",
+      tagline: `Enter an address to measure the distance to your nearest <em>Sushiro</em> and get a proximity rating.`,
       inputLabel: "Your address",
       placeholder: "e.g., Shibuya, Tokyo / SoHo, New York / Cambridge, MA",
-      btnQuery: "Search",
+      btnQuery: "Measure",
       btnGeo: "📍 Use my location",
-      hint: `${SUSHIRO_COUNT} stores embedded (data from OpenStreetMap); covers JP, TW, HK, SG, KR, TH, CN, ID, MY.`,
-      certTitle: "Proximity Certificate",
+      hint: `${SUSHIRO_COUNT} stores embedded (OpenStreetMap). Minimal mode: nearest store, distance, score, and rating only.`,
+      certTitle: "Proximity Report",
       tierLabel: "Tier",
-      nearestLabel: "Nearest store",
+      nearestLabel: "Nearest Sushiro",
       mapLink: "View on map ↗",
-      top5Title: "Top 5 nearest",
-      top5Sub: "NEAREST STORES",
       footer1: `${SUSHIRO_COUNT} store locations from OpenStreetMap · geocoding via <code>Nominatim / Photon</code> · straight-line distance (Haversine).`,
-      footer2: "Unofficial — a fan tool, not real estate advice.",
+      footer2: "Unofficial — a distance tool with a dramatic rating system.",
       stCalc: "Calculating…",
       stParsing: "Looking up your address…",
       stNeedAddr: "Enter an address, or click \"Use my location\".",
@@ -666,22 +669,20 @@
     },
     ja: {
       htmlLang: "ja",
-      badge: "スシロー近接指数 · EST. 2026",
-      h1: "スシロー近接指数",
-      tagline: `ご住所を入力。最寄りの <em>スシロー</em> までの距離を測り、「朗区房ランク」を判定します。`,
+      badge: "朗区房査定 · EST. 2026",
+      h1: "スシロー距離測定",
+      tagline: `住所を入力すると、最寄りの <em>スシロー</em> までの距離を測定し、遊びの<em>朗区房</em>ランクを表示します。`,
       inputLabel: "ご住所",
       placeholder: "例：東京都新宿区 / 中央区銀座 / Cambridge, MA",
-      btnQuery: "検 索",
+      btnQuery: "測 定",
       btnGeo: "📍 現在地を使う",
-      hint: `${SUSHIRO_COUNT}店舗を内蔵（OpenStreetMap 由来）／日本・中国・台湾・香港・韓国・新加坡・タイ・インドネシア・マレーシア`,
-      certTitle: "朗区房認定証",
-      tierLabel: "ランク",
-      nearestLabel: "最寄り店舗",
+      hint: `${SUSHIRO_COUNT}店舗を内蔵（OpenStreetMap 由来）／最近店舗・距離・スコア・朗区房ランクのみ表示`,
+      certTitle: "朗区房査定書",
+      tierLabel: "朗区房ランク",
+      nearestLabel: "最寄りのスシロー",
       mapLink: "地図で見る ↗",
-      top5Title: "近隣 TOP 5",
-      top5Sub: "NEAREST STORES",
       footer1: `${SUSHIRO_COUNT}店舗データは OpenStreetMap から · ジオコーディング <code>Nominatim / Photon</code> · 直線距離（Haversine）`,
-      footer2: "非公式 — スシローファンの自作ツール、不動産アドバイスではありません。",
+      footer2: "非公式 — 距離をまじめに、評価は少し大げさに。",
       stCalc: "計算中……",
       stParsing: "住所を解析中……",
       stNeedAddr: "住所を入力するか、「現在地を使う」をクリック。",
@@ -710,41 +711,72 @@
 
   const TIER_LOCALE = {
     zh: {
-      prime:   { name: "顶级朗区房", desc: "推开窗就是寿司朗，资产直接挂牌溢价",                   seal: "顶级" },
-      t1:      { name: "一级朗区房", desc: "步行十分钟内，不穿外套都行",                            seal: "一级" },
-      t2:      { name: "二级朗区房", desc: "骑个车、走一会儿，属于日常生活半径",                    seal: "二级" },
-      t3:      { name: "三级朗区房", desc: "要计划一下，但「想去就能去」",                           seal: "三级" },
-      quasi:   { name: "准朗区",     desc: "开车一趟，属于周末行程",                                seal: "准朗" },
-      exurb:   { name: "朗区远郊",   desc: "一日游起步，得规划",                                    seal: "远郊" },
-      exclave: { name: "朗区飞地",   desc: "需要坐飞机，算一次小型探亲",                            seal: "飞地" },
-      refugee: { name: "朗区难民",   desc: "跨洲思乡型，朋友圈看别人吃是你的精神生活",              seal: "难民" },
-      exile:   { name: "朗区流放",   desc: "建议搬家。或者搬厨房——开始研究怎么自己捏",              seal: "流放" }
+      prime:   { name: "顶级朗区房", desc: "步行即达，核心朗区，无需多言",             seal: "顶级" },
+      t1:      { name: "一级朗区房", desc: "十分钟生活圈内，不穿外套也能去",           seal: "一级" },
+      t2:      { name: "二级朗区房", desc: "仍属日常半径，去一趟不算专门出门",         seal: "二级" },
+      t3:      { name: "三级朗区房", desc: "需要一点计划，但还算“想去就能去”",         seal: "三级" },
+      quasi:   { name: "准朗区",     desc: "可达，但已经是一次明确出行",               seal: "准朗" },
+      exurb:   { name: "朗区远郊",   desc: "需要专程安排，临时起意成本偏高",           seal: "远郊" },
+      exclave: { name: "朗区飞地",   desc: "地理上仍有联系，情感上已近异地",           seal: "飞地" },
+      refugee: { name: "朗区难民",   desc: "常规可达性很弱，主要依靠线上观看维持认同", seal: "难民" },
+      exile:   { name: "朗区流放",   desc: "现实距离过远，建议接受命运或另起炉灶",     seal: "流放" }
     },
     en: {
-      prime:   { name: "Prime Zone",      desc: "Open the window and there it is. Property value just jumped.", seal: "PRIME" },
-      t1:      { name: "Tier I",          desc: "Ten-minute walk. No jacket required.",                          seal: "T-I"   },
-      t2:      { name: "Tier II",         desc: "Quick bike ride. Inside your daily radius.",                    seal: "T-II"  },
-      t3:      { name: "Tier III",        desc: "Needs a little planning, but 'anytime' still holds.",           seal: "T-III" },
-      quasi:   { name: "Quasi-Zone",      desc: "One drive. Weekend trip territory.",                            seal: "Q"     },
-      exurb:   { name: "Sushiro Exurb",   desc: "Day trip. Plan ahead.",                                         seal: "EXURB" },
-      exclave: { name: "Sushiro Exclave", desc: "Requires a flight. Counts as a mini pilgrimage.",               seal: "EXCL"  },
-      refugee: { name: "Sushiro Refugee", desc: "Continental homesickness. Watching others eat it online is now your spiritual life.", seal: "REFUG" },
-      exile:   { name: "Sushiro Exile",   desc: "Consider relocating. Or relocate your kitchen — time to learn nigiri.", seal: "EXILE" }
+      prime:   { name: "Core",         desc: "Basically at your doorstep",            seal: "core" },
+      t1:      { name: "Tier I",       desc: "Easy spontaneous visit",                seal: "I" },
+      t2:      { name: "Tier II",      desc: "Comfortably in range",                  seal: "II" },
+      t3:      { name: "Borderline",   desc: "Counts, with some effort",              seal: "edge" },
+      quasi:   { name: "Outer zone",   desc: "Needs a little planning",               seal: "outer" },
+      exurb:   { name: "Exclave",      desc: "Conceptually connected, physically not",seal: "exclave" },
+      exclave: { name: "Exiled",       desc: "Not an everyday sushi distance",        seal: "exile" },
+      refugee: { name: "Overseas exile", desc: "Emotionally aligned, geographically remote", seal: "remote" },
+      exile:   { name: "Permanent exile", desc: "Mostly a map-based relationship",   seal: "away" }
     },
     ja: {
-      prime:   { name: "最上級スシロー圏", desc: "窓を開ければそこにスシロー。資産価値が即上昇。",            seal: "最上" },
-      t1:      { name: "第一級",           desc: "徒歩十分圏内。上着なしでもOK。",                             seal: "一級" },
-      t2:      { name: "第二級",           desc: "自転車ですぐ。日常生活圏内。",                               seal: "二級" },
-      t3:      { name: "第三級",           desc: "少し計画が要るが、「行こうと思えば行ける」範囲。",           seal: "三級" },
-      quasi:   { name: "準スシロー圏",     desc: "車で一回。週末コース。",                                     seal: "準"   },
-      exurb:   { name: "郊外",             desc: "日帰り旅行。要計画。",                                       seal: "郊外" },
-      exclave: { name: "飛び地",           desc: "飛行機必須。ミニ帰省扱い。",                                 seal: "飛地" },
-      refugee: { name: "難民",             desc: "大陸越しのホームシック。SNSで他人が食べてるのを見るのが精神生活。", seal: "難民" },
-      exile:   { name: "流刑",             desc: "引越しを推奨。あるいは台所を——自分で握る練習を始めよう。",   seal: "流刑" }
+      prime:   { name: "核心朗区房", desc: "ほぼ出たら着く",                   seal: "核心" },
+      t1:      { name: "一等朗区房", desc: "いつでも行ける距離",               seal: "一等" },
+      t2:      { name: "二等朗区房", desc: "日常圏内にある",                   seal: "二等" },
+      t3:      { name: "準朗区房",   desc: "認定可能だが少し努力が要る",       seal: "準朗" },
+      quasi:   { name: "郊外朗区房", desc: "少し計画が必要",                   seal: "郊外" },
+      exurb:   { name: "飛地朗区房", desc: "概念上は近いが物理的には遠い",     seal: "飛地" },
+      exclave: { name: "流放朗区房", desc: "気軽に食べる距離ではない",         seal: "流放" },
+      refugee: { name: "海外流放",   desc: "気持ちは近いが場所は遠い",         seal: "海外" },
+      exile:   { name: "永久流放",   desc: "主に地図と想像力でつながる",       seal: "流放" }
     }
   };
 
   function getTier(km) { return TIERS.find(t => km < t.max); }
+
+  function getScore(km) {
+    const bands = [
+      { max: 0.3, base: 100, next: 96 },
+      { max: 1, base: 95, next: 90 },
+      { max: 3, base: 89, next: 80 },
+      { max: 10, base: 79, next: 65 },
+      { max: 50, base: 64, next: 40 },
+      { max: 200, base: 39, next: 20 },
+      { max: 1000, base: 19, next: 8 },
+      { max: 5000, base: 7, next: 1 },
+      { max: Infinity, base: 0, next: 0 }
+    ];
+
+    let prevMax = 0;
+    for (const b of bands) {
+      if (km < b.max) {
+        if (!isFinite(b.max) || b.base === b.next) return b.base;
+        const ratio = (km - prevMax) / (b.max - prevMax);
+        return Math.round(b.base + (b.next - b.base) * ratio);
+      }
+      prevMax = b.max;
+    }
+    return 0;
+  }
+
+  const GENERIC_ADDRESSES = new Set(["日本", "香港", "台灣", "中国大陆", "Singapore", "Indonesia", "Malaysia", "Thailand", "South Korea"]);
+  function isUsableStore(loc) {
+    const a = String(loc.a || "").trim();
+    return a && !GENERIC_ADDRESSES.has(a);
+  }
 
   // ============ HAVERSINE ============
   function haversine(lat1, lng1, lat2, lng2) {
@@ -856,10 +888,9 @@
     $("#tier-label").textContent = L.tierLabel;
     $("#nearest-label").textContent = L.nearestLabel;
     $("#map-link").textContent = L.mapLink;
-    $("#top5-title").innerHTML = `${escapeHtml(L.top5Title)} <span>${escapeHtml(L.top5Sub)}</span>`;
     $("#footer-1").innerHTML = L.footer1;
     $("#footer-2").textContent = L.footer2;
-    document.title = `${L.h1} · 朗区房査定`;
+    document.title = currentLang === "zh" ? `${L.h1} · 朗区房査定` : `${L.h1} · Sushiro Distance Index`;
 
     if (lastResultData) renderResult(lastResultData);
   }
@@ -871,15 +902,16 @@
   // ============ RENDER ============
   function renderResult(rd) {
     lastResultData = rd;
-    const { nearest, top5 } = rd;
+    const { nearest } = rd;
     const tier = getTier(nearest.distance);
     const tierText = TIER_LOCALE[currentLang][tier.key];
+    const score = getScore(nearest.distance);
 
     const certId = "R-" + Math.abs(Math.round(nearest.distance * 1000) % 999999).toString().padStart(6, "0");
     $("#cert-id").textContent = "No. " + certId;
 
-    $("#verdict-name").textContent = tierText.name;
-    $("#verdict-desc").textContent = tierText.desc;
+    $("#verdict-name").textContent = `${score} / 100`;
+    $("#verdict-desc").textContent = `${tierText.name} · ${tierText.desc}`;
 
     $("#seal-emoji").textContent = tier.emoji;
     $("#seal-name").textContent = tierText.seal;
@@ -892,21 +924,6 @@
     $("#nearest-addr").textContent = nearest.a;
     $("#map-link").href = `https://www.openstreetmap.org/?mlat=${nearest.y}&mlon=${nearest.x}#map=16/${nearest.y}/${nearest.x}`;
 
-    const top5El = $("#top5");
-    top5El.innerHTML = "";
-    top5.forEach(loc => {
-      const li = document.createElement("li");
-      const fd2 = formatDistance(loc.distance);
-      li.innerHTML = `
-        <div class="store-info">
-          <div class="store-name">${escapeHtml(loc.n)}</div>
-          <div class="store-addr">${escapeHtml(loc.a)}</div>
-        </div>
-        <div class="store-dist">${fd2.num}${fd2.unit}</div>
-      `;
-      top5El.appendChild(li);
-    });
-
     $("#result").classList.add("visible");
     hideStatus();
   }
@@ -915,12 +932,13 @@
   function runQuery(userLat, userLng) {
     $("#result").classList.remove("visible");
 
-    const withDist = SUSHIRO_DATA.map(loc => ({
+    const candidates = SUSHIRO_DATA.filter(isUsableStore);
+    const withDist = candidates.map(loc => ({
       ...loc,
       distance: haversine(userLat, userLng, loc.y, loc.x)
     })).sort((a, b) => a.distance - b.distance);
 
-    renderResult({ nearest: withDist[0], top5: withDist.slice(0, 5) });
+    renderResult({ nearest: withDist[0] });
     setTimeout(() => $("#result").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
