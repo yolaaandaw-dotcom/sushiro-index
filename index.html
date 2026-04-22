@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>朗区房测评器 · Sushiro Distance Index</title>
+<title>郎区房测评器 · Sushiro Distance Index</title>
 <meta name="description" content="Measure how close you are to the nearest Sushiro. Self-contained, no backend.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -540,7 +540,7 @@
   </div>
 
   <header>
-    <div class="jpn">朗区房査定</div>
+    <div class="jpn">郎区房査定</div>
     <span class="badge" id="badge"></span>
     <h1 id="h1"></h1>
     <div class="h1-sub">SUSHIRO DISTANCE INDEX</div>
@@ -615,20 +615,20 @@
   const I18N = {
     zh: {
       htmlLang: "zh",
-      badge: "朗区房査定 · EST. 2026",
-      h1: "朗区房测评器",
-      tagline: `输入地址，测算你与最近<em>寿司郎</em>的距离，并生成<em>朗区评级</em>。`,
+      badge: "郎区房査定 · EST. 2026",
+      h1: "郎区房测评器",
+      tagline: `输入地址，测算你与最近<em>寿司郎</em>的距离，并生成<em>郎区评级</em>。`,
       inputLabel: "输入地址",
       placeholder: "例如：上海徐汇 / 北京国贸 / 广州天河 / 东京涩谷",
       btnQuery: "开始测评",
       btnGeo: "📍 用我的位置",
-      hint: `${SUSHIRO_COUNT} 家门店已内置（来自 OpenStreetMap）；仅显示最近门店、距离、分数与朗区评级。`,
-      certTitle: "朗区房测定书",
-      tierLabel: "朗区评级",
+      hint: `${SUSHIRO_COUNT} 家门店已内置（来自 OpenStreetMap）；仅显示最近门店、距离、分数与郎区评级。`,
+      certTitle: "郎区房测定书",
+      tierLabel: "郎区评级",
       nearestLabel: "最近一家寿司郎",
       mapLink: "查看地图 ↗",
       footer1: `${SUSHIRO_COUNT} 家门店数据来自 OpenStreetMap · 地理编码 <code>Nominatim / Photon</code> · 直线距离（Haversine）`,
-      footer2: "非官方朗区评测工具，不构成任何购房建议。",
+      footer2: "非官方郎区评测工具，不构成任何购房建议。",
       stCalc: "计算中……",
       stParsing: "解析地址中……",
       stNeedAddr: "先输入一个地址，或者点「用我当前位置」。",
@@ -669,16 +669,16 @@
     },
     ja: {
       htmlLang: "ja",
-      badge: "朗区房査定 · EST. 2026",
+      badge: "郎区房査定 · EST. 2026",
       h1: "スシロー距離測定",
-      tagline: `住所を入力すると、最寄りの <em>スシロー</em> までの距離を測定し、遊びの<em>朗区房</em>ランクを表示します。`,
+      tagline: `住所を入力すると、最寄りの <em>スシロー</em> までの距離を測定し、遊びの<em>郎区房</em>ランクを表示します。`,
       inputLabel: "ご住所",
       placeholder: "例：東京都新宿区 / 中央区銀座 / Cambridge, MA",
       btnQuery: "測 定",
       btnGeo: "📍 現在地を使う",
-      hint: `${SUSHIRO_COUNT}店舗を内蔵（OpenStreetMap 由来）／最近店舗・距離・スコア・朗区房ランクのみ表示`,
-      certTitle: "朗区房査定書",
-      tierLabel: "朗区房ランク",
+      hint: `${SUSHIRO_COUNT}店舗を内蔵（OpenStreetMap 由来）／最近店舗・距離・スコア・郎区房ランクのみ表示`,
+      certTitle: "郎区房査定書",
+      tierLabel: "郎区房ランク",
       nearestLabel: "最寄りのスシロー",
       mapLink: "地図で見る ↗",
       footer1: `${SUSHIRO_COUNT}店舗データは OpenStreetMap から · ジオコーディング <code>Nominatim / Photon</code> · 直線距離（Haversine）`,
@@ -711,15 +711,15 @@
 
   const TIER_LOCALE = {
     zh: {
-      prime:   { name: "顶级朗区房", desc: "步行即达，核心朗区，无需多言",             seal: "顶级" },
-      t1:      { name: "一级朗区房", desc: "十分钟生活圈内，不穿外套也能去",           seal: "一级" },
-      t2:      { name: "二级朗区房", desc: "仍属日常半径，去一趟不算专门出门",         seal: "二级" },
-      t3:      { name: "三级朗区房", desc: "需要一点计划，但还算“想去就能去”",         seal: "三级" },
-      quasi:   { name: "准朗区",     desc: "可达，但已经是一次明确出行",               seal: "准朗" },
-      exurb:   { name: "朗区远郊",   desc: "需要专程安排，临时起意成本偏高",           seal: "远郊" },
-      exclave: { name: "朗区飞地",   desc: "地理上仍有联系，情感上已近异地",           seal: "飞地" },
-      refugee: { name: "朗区难民",   desc: "常规可达性很弱，主要依靠线上观看维持认同", seal: "难民" },
-      exile:   { name: "朗区流放",   desc: "现实距离过远，建议接受命运或另起炉灶",     seal: "流放" }
+      prime:   { name: "顶级郎区房", desc: "步行即达，核心郎区，无需多言",             seal: "顶级" },
+      t1:      { name: "一级郎区房", desc: "十分钟生活圈内，不穿外套也能去",           seal: "一级" },
+      t2:      { name: "二级郎区房", desc: "仍属日常半径，去一趟不算专门出门",         seal: "二级" },
+      t3:      { name: "三级郎区房", desc: "需要一点计划，但还算“想去就能去”",         seal: "三级" },
+      quasi:   { name: "准郎区",     desc: "可达，但已经是一次明确出行",               seal: "准郎" },
+      exurb:   { name: "郎区远郊",   desc: "需要专程安排，临时起意成本偏高",           seal: "远郊" },
+      exclave: { name: "郎区飞地",   desc: "地理上仍有联系，情感上已近异地",           seal: "飞地" },
+      refugee: { name: "郎区难民",   desc: "常规可达性很弱，主要依靠线上观看维持认同", seal: "难民" },
+      exile:   { name: "郎区流放",   desc: "现实距离过远，建议接受命运或另起炉灶",     seal: "流放" }
     },
     en: {
       prime:   { name: "Core",         desc: "Basically at your doorstep",            seal: "core" },
@@ -733,13 +733,13 @@
       exile:   { name: "Permanent exile", desc: "Mostly a map-based relationship",   seal: "away" }
     },
     ja: {
-      prime:   { name: "核心朗区房", desc: "ほぼ出たら着く",                   seal: "核心" },
-      t1:      { name: "一等朗区房", desc: "いつでも行ける距離",               seal: "一等" },
-      t2:      { name: "二等朗区房", desc: "日常圏内にある",                   seal: "二等" },
-      t3:      { name: "準朗区房",   desc: "認定可能だが少し努力が要る",       seal: "準朗" },
-      quasi:   { name: "郊外朗区房", desc: "少し計画が必要",                   seal: "郊外" },
-      exurb:   { name: "飛地朗区房", desc: "概念上は近いが物理的には遠い",     seal: "飛地" },
-      exclave: { name: "流放朗区房", desc: "気軽に食べる距離ではない",         seal: "流放" },
+      prime:   { name: "核心郎区房", desc: "ほぼ出たら着く",                   seal: "核心" },
+      t1:      { name: "一等郎区房", desc: "いつでも行ける距離",               seal: "一等" },
+      t2:      { name: "二等郎区房", desc: "日常圏内にある",                   seal: "二等" },
+      t3:      { name: "準郎区房",   desc: "認定可能だが少し努力が要る",       seal: "準郎" },
+      quasi:   { name: "郊外郎区房", desc: "少し計画が必要",                   seal: "郊外" },
+      exurb:   { name: "飛地郎区房", desc: "概念上は近いが物理的には遠い",     seal: "飛地" },
+      exclave: { name: "流放郎区房", desc: "気軽に食べる距離ではない",         seal: "流放" },
       refugee: { name: "海外流放",   desc: "気持ちは近いが場所は遠い",         seal: "海外" },
       exile:   { name: "永久流放",   desc: "主に地図と想像力でつながる",       seal: "流放" }
     }
@@ -890,7 +890,7 @@
     $("#map-link").textContent = L.mapLink;
     $("#footer-1").innerHTML = L.footer1;
     $("#footer-2").textContent = L.footer2;
-    document.title = currentLang === "zh" ? `${L.h1} · 朗区房査定` : `${L.h1} · Sushiro Distance Index`;
+    document.title = currentLang === "zh" ? `${L.h1} · 郎区房査定` : `${L.h1} · Sushiro Distance Index`;
 
     if (lastResultData) renderResult(lastResultData);
   }
